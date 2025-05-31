@@ -289,6 +289,10 @@
                 visibility: hidden;
                 cursor: pointer;
             }
+            #share-button { /* temp fix */
+                left: 58% !important;
+                top: 69% !important;
+            }
             #share-button.visibility {
                 visibility: visible;
             }
@@ -322,9 +326,51 @@
                 top: 10%;
                 left: 5%;
             }
+            #lion-dance { /* temp fix */
+                left: 49% !important;
+            }
             #lion-dance.visibility {
                 visibility: visible;
             }
+            
+            #play-button {
+            	animation: pulse 1s infinite;
+            }
+            
+            #number-of-words-found {
+            	top: 12% !important;
+            }
+            
+            #rotate-button {
+            	left: 90% !important;
+            	top: 12% !important;
+            }
+            
+            #pause-button {
+            	left: 54.7% !important;
+            	z-index: 4;
+            }
+            
+            #stopwatch {
+            	left: 55.5% !important;
+            	top: 85.1% !important;
+            	font-size: calc(2.8vw) !important;
+            	display: flex !important;
+            }
+            
+            @keyframes pulse {
+                        0% {
+                            transform: scale(1);
+                        }
+            
+                        50% {
+                            transform: scale(1.1);
+                        }
+            
+                        100% {
+                            transform: scale(1);
+                        }
+                    }
     </style>
 </head>
 <body>
@@ -366,8 +412,8 @@
             <img id="pause-button" src="//nshsdenebola.com/wp-content/uploads/2024/11/pause.png"
                   alt="pause.png">
             <div id="word-bank"></div>
-            <img id="completed-alert" src="//nshsdenebola.com/wp-content/uploads/2024/11/complete1.png"
-                  alt="complete1.png">
+            <!-- <img id="completed-alert" src="//nshsdenebola.com/wp-content/uploads/2024/11/complete1.png"
+                  alt="complete1.png"> -->
             <img id="share-button" src="//nshsdenebola.com/wp-content/uploads/2024/11/share.png"
                   alt="share.png">
             <img id="lion-dance" src="//nshsdenebola.com/wp-content/uploads/2024/11/lion-dance-1.gif" alt="lion-dance.gif" />
