@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Document</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barrio&family=Chelsea+Market&family=Henny+Penny&family=Jacquard+12&family=Jacquarda+Bastarda+9&family=Reenie+Beanie&family=Rock+Salt&display=swap');
+        
+        .card {
+                max-height: 99vh;
+                aspect-ratio: 1537 / 898;
+                transform-style: preserve-3d;
+                transition: 1s;
+                position: relative;
+                overflow: visible;
+            }
+    
+            .flip {
+                transform: rotateY(180deg);
+            }
+    
+            .front-of-card, .back-of-card, #completed-alert, #to-do-checkmark, #to-do-text {
+                height: 100%;
+                width: 100%;
+                position: absolute;
+                backface-visibility: hidden; /* Ensures hidden side stays hidden */
+                transform-style: preserve-3d;
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+
+            #completed-alert {
+                z-index: 5;
+                visibility: hidden;
+                opacity: 0;
+                transform: scale(0.8);
+                transition: background-color 1s ease-in;
+                transition: opacity 2s ease-in, transform 2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            }
+
+            #completed-alert.visibility {
+                visibility: visible;
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            @keyframes bounce {
+                0% {
+                    transform: scale(0.8);
+                }
+                50% {
+                    transform: scale(1.1);
+                }
+                100% {
+                    transform: scale(1);
+                }
+            }
+
+            #completed-alert.visibility {
+                animation: bounce 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            }
+
+            #completed-alert.fade-to-white {
+                background-color: white;
+            }
+    
+            .front-of-card {
+                z-index: 2; /* Front starts above */
+                background-image: url('//nshsdenebola.com/wp-content/uploads/2024/11/home1.png');
+            }
+    
+            .back-of-card {
+                transform: rotateY(180deg);
+                background-image: url('//nshsdenebola.com/wp-content/uploads/2024/11/background.jpg');
+                z-index: 1; /* Back starts below */
+            }
+    
+            .card .grid-area{
+                position: absolute;
+                width: 38.7%; /* 16/31 cells */
+                aspect-ratio: 1 / 1;
+                right: 6.65%;
+                top: 16.67%;
+            }
+            #grid {
+                width: 100%;
+                height: 100%;
+                display: grid;
+                grid-gap: 5px;
+                position: relative;
+                z-index: 1;
+            }
+            .tile {
+                aspect-ratio: 1 / 1;
+                width: 100%;
+                height: 100%; 
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .tile button {
+                background-color: transparent;
+                color: #006bcd;
+                font-weight: 400;
+                font-family: "Chelsea Market", serif;
+                font-size: calc(4vw);
+                text-align: center;
+                width: calc(100% - 10px);
+                height: calc(100% - 10px);
+                box-sizing: border-box;
+                border-radius: 100px;
+                border: none;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+            .tile button.selected {
+                background-color: #feb739;
+            }
+            .tile button.fade-out {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+    
+            #play-button {
+                position: absolute;
+                padding: 0;
+                background-color: transparent;
+                border: none;
+                color: #006bcd;
+                font-size: calc(20vw);
+                top: 27%;
+                transition: transform 0.2s;
+                cursor: pointer;
+                will-change: transform;
+                backface-visibility: hidden;
+            }
+            
+            #play-button:hover {
+                transform: scale(1.2);
+            }
+            
+            #rotate-button {
+                position: absolute;
+                padding: 0;
+                border: none;
+                background-color: transparent;
+                top: 15.1%;
+                right: 2.3%;
+                scale: .3;
+                cursor: pointer;
+                z-index: 4;
+            }
+            
+            #rotate-button img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+    
+            #progress-bar-container {
+                width: 51%;
+                height: 5.2%;
+                position: absolute;
+                top: 11.7%;
+                left: 48.6%;
+            }
+            .progress-bar {
+                height: 100%;
+                width: calc(var(--width, 0) * 1%);
+                max-width: 100%;
+                background-color: #006bcd;
+            }
+            #number-of-words-found {
+                font-weight: 900;
+                font-size: calc(2vw);
+                font-family: "Helvetica";
+    
+                position: absolute;
+                top: 13%;
+                right: 1%;
+                color: #72a7df;
+            }
+    
+            #stopwatch {
+                z-index: 3;
+                font-weight:600;
+                font-size: calc(3vw);
+                font-family: "Jacquarda Bastarda 9", serif;
+    
+                position: absolute;
+                left: 54.7%;
+                top: 87%;
+    
+                background: none;
+                border: none;
+                color: #72a7df;
+            }
+            #stopwatch.visibility {
+                color: transparent;
+            }
+            #pause-button {
+                top: 88%;
+                right: 29%;
+                width: 3.5%;
+                font-size: calc(3vw);
+                position: absolute;
+                background: none;
+                border: none;
+            }
+            .line {
+                position: absolute;
+                height: 15px;
+                background-color: #feb739;
+                z-index: 0;
+                pointer-events: none; /* Prevent interfering with mouse events */
+            }
+            #word-bank {
+                width: 44%;
+                aspect-ratio: 1 / 1;
+                top: 11.11%;
+                left: 0;
+                margin: 19px;
+                font-size: calc(3vw);
+                font-family: "Reenie Beanie", serif;
+    
+                background-color: transparent;
+                color: black;
+                letter-spacing:normal;
+                overflow-y: scroll;
+                position: absolute;
+            }
+            .selected-letters {
+                color: #006bcd;
+                font-weight: bold;
+            }
+            #month, #day-of-month {
+                font-weight:900;
+                text-transform: uppercase;
+                font-size: calc(2.5vw);
+                font-family: "Helvetica";
+    
+                position: absolute;
+    
+                color: #72a7df;
+            }
+            #month {
+                top: 4.7%;
+                left: .75%;
+            }
+            #day-of-month {
+                top: 4.4%;
+                left: 8.5%;
+                font-size: calc(2.75vw);
+            }
+            #day-of-week {
+                width: 4%;
+                position: absolute;
+                top: 2.5%;
+                left: 14.4%;
+            }
+            #to-do-checkmark {
+                visibility: hidden;
+            }
+            #definitions-button {
+                font-size: calc(3.9vw);
+                font-family: "Helvetica";
+                cursor: pointer;
+                position: absolute;
+                padding: 0;
+                border: none;
+                color: #006bcd;
+                top: 13.5%;
+                left: 43.37%;
+                background-color: transparent;
+                z-index: 4;
+            }
+            .display {
+                display: none;
+            }
+            #share-button {
+                z-index: 8;
+                position: absolute;
+                width: 30%;
+                top: 70%;
+                left: 34%;
+                visibility: hidden;
+                cursor: pointer;
+            }
+            #share-button.visibility {
+                visibility: visible;
+            }
+            #too-short {
+                width: 29%;
+            }
+            #already-found {
+                width: 30%;
+            }
+            #not-valid{
+                width: 33%;
+            }
+            .alert {
+                position: absolute;
+                visibility: hidden;
+                opacity: 0;
+                z-index: 7;
+                transition: opacity .5s ease-in;
+            }
+
+            .alert.visibility {
+                visibility: visible;
+                opacity: 1;
+                animation: bounce 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            }
+            #lion-dance {
+                position: absolute;
+                width: 50%;
+                visibility: hidden;
+                z-index: 6;
+                top: 10%;
+                left: 5%;
+            }
+            #lion-dance.visibility {
+                visibility: visible;
+            }
+    </style>
+</head>
+<body>
+    <div class="card" id="card">
+        <div class="front-of-card">
+            <button id="play-button">▶︎</button>
+        </div>
+        <div class="back-of-card">
+            <div id="month"></div>
+            <div id="day-of-month"></div>
+            <img id="to-do-text" src="//nshsdenebola.com/wp-content/uploads/2024/11/play-the-denebola-daily.png" alt="play-the-denebola-daily.png">
+            <img id="day-of-week" src="//nshsdenebola.com/wp-content/uploads/2024/11/day-of-week.png" alt="day-of-week.png">
+            <button id="definitions-button">⊗︎</button>
+            <div id="progress-bar-container" style="--width: 0">
+                <div class="progress-bar"></div>
+            </div>
+            <div id="number-of-words-found"></div>
+            <img id="to-do-checkmark" src="//nshsdenebola.com/wp-content/uploads/2024/11/check.png" alt="check.png">
+            <div class="grid-area">
+                <div id="grid"></div>
+            </div>
+            <button id="rotate-button">
+                <img src="//nshsdenebola.com/wp-content/uploads/2024/11/rotate.png"
+                      alt="rotate.png">
+            </button>
+            <button id="stopwatch" onclick="this.classList.toggle('visibility');">
+                <span id="hours" class="time">00</span>
+                <span id="minutes" class="time">:00</span>
+                <span id="seconds" class="time">:00</span>
+            </button>
+
+            <img id="too-short" class="alert" src="//nshsdenebola.com/wp-content/uploads/2024/11/too-short1.png"
+                  alt="too-short.png">
+            <img id="already-found" class="alert" src="//nshsdenebola.com/wp-content/uploads/2024/11/already-found.png"
+                  alt="already-found.png">
+            <img id="not-valid" class="alert" src="//nshsdenebola.com/wp-content/uploads/2024/11/not-valid1.png"
+                  alt="not-valid.png">
+
+            <img id="pause-button" src="//nshsdenebola.com/wp-content/uploads/2024/11/pause.png"
+                  alt="pause.png">
+            <div id="word-bank"></div>
+            <img id="completed-alert" src="//nshsdenebola.com/wp-content/uploads/2024/11/complete1.png"
+                  alt="complete1.png">
+            <img id="share-button" src="//nshsdenebola.com/wp-content/uploads/2024/11/share.png"
+                  alt="share.png">
+            <img id="lion-dance" src="//nshsdenebola.com/wp-content/uploads/2024/11/lion-dance-1.gif" alt="lion-dance.gif" />
+            <p></p>
+        </div>
+    </div>
+</body>
+</html>
